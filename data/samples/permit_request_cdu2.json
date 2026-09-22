@@ -1,0 +1,11 @@
+{
+  "title": "Emergency Overhead Manifold Welding - CDU-II",
+  "workflow_type": "HOT_WORK_PERMIT",
+  "unit_location": "Crude Distillation Unit (CDU-II), Column C-101 Overhead Manifold",
+  "priority": "URGENT",
+  "description": "High-pressure pipe weld repair on CDU-II reflux line 14-B following ultrasonic indication of flange crack. Requires oxy-acetylene torch cutting and TIG welding within battery limits.",
+  "document_ids": [
+    "DOC-SOP-402",
+    "DOC-ENG-108"
+  ]
+}

@@ -1,0 +1,26 @@
+MANGALORE REFINERY AND PETROCHEMICALS LIMITED (MRPL)
+STANDARD OPERATING PROCEDURE: SAFETY IN HYDROCARBON PROCESSING
+DOCUMENT CODE: MRPL-SOP-SAF-402 (Revision 4.2)
+CLASSIFICATION: MRPL INTERNAL RESTRICTED
+
+1. PURPOSE & APPLICABILITY
+This Standard Operating Procedure defines the mandatory safety precautions, atmospheric testing parameters, and conflict clearance boundaries required before any hot work (welding, cutting, grinding, burning, or open flame ignition) is initiated within Crude Distillation Units (CDU-I, CDU-II), Fluid Catalytic Cracking Units (FCCU), and Hydrocracker Units (HCU).
+
+2. SPATIAL CLEARANCE BOUNDARIES (SECTION 3.1)
+Hot work operations within process battery limits require an absolute minimum clearance radius of 15 meters from:
+- Open oily water sewers and drainage catch basins (which must be sealed and water-flooded).
+- Hydrocarbon sample stations, bleeder valves, and pump mechanical seal flush lines.
+- Flammable chemical drum storage and combustible materials.
+
+3. ATMOSPHERIC GAS TESTING & LOWER EXPLOSIVE LIMIT (LEL) (SECTION 3.4)
+3.1. Prior to spark or flame generation, certified atmospheric testing using a calibrated multi-gas detector (O2, H2S, CO, Combustible Hydrocarbon) is mandatory.
+3.2. Lower Explosive Limit (LEL) reading must be strictly 0.0%.
+3.3. If combustible gas concentration is detectable (>0.0% LEL), the permit request is immediately suspended. The line or vessel must be positively isolated, blind-flanged, and purged with nitrogen until gas levels reach 0.0% LEL. Re-testing is mandatory after 60 minutes.
+
+4. SIMULTANEOUS OPERATIONS (SIMOPS) CONFLICT RULES (SECTION 4.2)
+Under no circumstance shall a Hot Work Permit be approved if:
+4.1. Active cold work involving chemical solvent washing, acid flushing, or manual venting is underway within 30 meters.
+4.2. Any transfer of volatile light naphtha, LPG, or aromatic reformate is occurring in adjacent pipe racks within 25 meters.
+
+5. FIRE WATCH STANDBY & EMERGENCY PRECAUTIONS (SECTION 5.1)
+A dedicated, trained Fire Watch attendant equipped with two 10kg Dry Chemical Powder (DCP) extinguishers and a continuous LEL gas monitor must remain on-site throughout spark generation and for at least 60 minutes after cessation of hot work.
