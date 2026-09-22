@@ -1,10 +1,12 @@
 import hashlib
 import json
+import logging
 import os
 from datetime import datetime
 from typing import List, Optional
 from backend.app.models.schemas import AuditLogEntry
 
+logger = logging.getLogger(__name__)
 AUDIT_LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "audit_chain.jsonl")
 
 
@@ -24,8 +26,8 @@ class AuditService:
                             data = json.loads(line)
                             entry = AuditLogEntry(**data)
                             self.entries.append(entry)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("Could not read audit log file: %s", e)
 
     def record_event(
         self,
@@ -67,8 +69,8 @@ class AuditService:
         try:
             with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write(entry.model_dump_json() + "\n")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed to append to audit ledger file: %s", e)
 
         # Also persist to SQLite database
         try:
@@ -91,8 +93,8 @@ class AuditService:
             db.add(db_entry)
             db.commit()
             db.close()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed to write audit entry to SQLite: %s", e)
 
         return entry
 

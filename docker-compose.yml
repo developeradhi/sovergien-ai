@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sovereign_ai_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - SOVEREIGN_SECRET_KEY=mrpl-sovereign-production-key-2026-airgap
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - ./backend/storage:/app/backend/storage
+      - ./data:/app/data:ro
+    networks:
+      - sovereign_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sovereign_ai_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - sovereign_net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sovereign_ai_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - sovereign_net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+networks:
+  sovereign_net:
+    driver: bridge
+    # Demonstrating internal network boundary
+    internal: false
+
+volumes:
+  ollama_models:
+    driver: local

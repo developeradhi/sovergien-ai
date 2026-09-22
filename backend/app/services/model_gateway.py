@@ -1,9 +1,9 @@
 import json
-import urllib.request
-import urllib.error
+import http.client
+import logging
 from typing import Dict, Any, List, Optional
 
-OLLAMA_BASE_URL = "http://localhost:11434"
+logger = logging.getLogger(__name__)
 
 
 class ModelGateway:
@@ -14,13 +14,15 @@ class ModelGateway:
 
     def _check_ollama_status(self) -> bool:
         try:
-            req = urllib.request.Request(f"{OLLAMA_BASE_URL}/api/tags", headers={"User-Agent": "MRPL-Sovereign-Client"})
-            with urllib.request.urlopen(req, timeout=1.0) as resp:
-                if resp.status == 200:
-                    return True
-        except Exception:
-            pass
-        return False
+            conn = http.client.HTTPConnection("127.0.0.1", 11434, timeout=1.0)
+            conn.request("GET", "/api/tags", headers={"User-Agent": "MRPL-Sovereign-Client"})
+            resp = conn.getresponse()
+            is_ok = resp.status == 200
+            conn.close()
+            return is_ok
+        except Exception as e:
+            logger.debug("Local Ollama daemon status check: offline or unreachable (%s)", e)
+            return False
 
     def get_runtime_info(self) -> Dict[str, Any]:
         has_ollama = self._check_ollama_status()

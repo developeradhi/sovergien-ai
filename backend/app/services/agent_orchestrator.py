@@ -1,4 +1,6 @@
 import uuid
+import json
+import logging
 from datetime import datetime
 from typing import Dict, List, Optional
 from backend.app.models.schemas import (
@@ -9,8 +11,8 @@ from backend.app.services.model_gateway import model_gateway
 from backend.app.services.audit_service import audit_service
 from backend.app.services.output_generator import output_generator
 
+logger = logging.getLogger(__name__)
 
-import json
 
 class AgentOrchestrator:
     def __init__(self):
@@ -70,8 +72,8 @@ class AgentOrchestrator:
                 )
                 self.tasks_dict[dbt.id] = task
             db.close()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Could not populate tasks from SQLite: %s", e)
 
     def create_and_start_task(
         self,
@@ -205,8 +207,8 @@ class AgentOrchestrator:
             db.add_all(db_steps)
             db.commit()
             db.close()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Could not persist created task to SQLite: %s", e)
 
         # Record in audit trail
         audit_service.record_event(
@@ -297,8 +299,8 @@ class AgentOrchestrator:
                 dbt.output_pdf_path = task.output_pdf_path
                 db.commit()
             db.close()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Could not persist review update to SQLite: %s", e)
 
         return task
 
