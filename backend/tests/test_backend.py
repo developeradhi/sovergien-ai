@@ -147,3 +147,12 @@ def test_end_to_end_permit_lifecycle():
     assert download_res.status_code == 200
     assert download_res.headers["content-type"] == "application/pdf"
     assert len(download_res.content) > 1000
+
+
+def test_root_landing_dashboard():
+    res = client.get("/")
+    assert res.status_code == 200
+    assert "text/html" in res.headers["content-type"]
+    assert "SOVEREIGN" in res.text
+    assert "background-color: #ffffff" in res.text
+    assert "AIR-GAP ENFORCED" in res.text
