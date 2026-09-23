@@ -319,6 +319,34 @@ def download_task_pdf(task_id: str):
     )
 
 
+@router.get("/tasks/{task_id}/download/docx")
+def download_task_docx(task_id: str):
+    task = agent_orchestrator.get_task(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found.")
+    from backend.app.services.output_generator import output_generator
+    docx_path = output_generator.generate_approval_note_docx(task)
+    return FileResponse(
+        docx_path,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename=os.path.basename(docx_path)
+    )
+
+
+@router.get("/tasks/{task_id}/download/xlsx")
+def download_task_xlsx(task_id: str):
+    task = agent_orchestrator.get_task(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found.")
+    from backend.app.services.output_generator import output_generator
+    xlsx_path = output_generator.generate_action_tracker_xlsx(task)
+    return FileResponse(
+        xlsx_path,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        filename=os.path.basename(xlsx_path)
+    )
+
+
 # --- Audit & Security Endpoints ---
 
 @router.get("/audit/logs", response_model=List[AuditLogEntry])

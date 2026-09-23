@@ -128,5 +128,13 @@ export const api = {
 
   getDownloadPdfUrl(taskId: string): string {
     return `${API_BASE}/tasks/${taskId}/download/pdf`;
+  },
+
+  getDownloadDocxUrl(taskId: string): string {
+    return `${API_BASE}/tasks/${taskId}/download/docx`;
+  },
+
+  getDownloadXlsxUrl(taskId: string): string {
+    return `${API_BASE}/tasks/${taskId}/download/xlsx`;
   }
 };

@@ -276,17 +276,40 @@ export const App: React.FC = () => {
                           </div>
 
                           {/* Deliverable Download Buttons */}
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             {selectedTask.status === 'COMPLETED' && (
-                              <a
-                                href={api.getDownloadPdfUrl(selectedTask.id)}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg flex items-center gap-2 shadow-lg shadow-emerald-900/40 transition-colors"
-                              >
-                                <Download className="w-4 h-4" />
-                                <span>Download PDF Permit</span>
-                              </a>
+                              <>
+                                <a
+                                  href={api.getDownloadPdfUrl(selectedTask.id)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md shadow-emerald-900/30 transition-colors"
+                                  title="Download signed PDF permit"
+                                >
+                                  <Download className="w-3.5 h-3.5" />
+                                  <span>PDF Permit</span>
+                                </a>
+                                <a
+                                  href={api.getDownloadDocxUrl(selectedTask.id)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md shadow-blue-900/30 transition-colors"
+                                  title="Download Word approval note"
+                                >
+                                  <Download className="w-3.5 h-3.5" />
+                                  <span>DOCX Note</span>
+                                </a>
+                                <a
+                                  href={api.getDownloadXlsxUrl(selectedTask.id)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-md shadow-teal-900/30 transition-colors"
+                                  title="Download Excel action tracker"
+                                >
+                                  <Download className="w-3.5 h-3.5" />
+                                  <span>XLSX Tracker</span>
+                                </a>
+                              </>
                             )}
                           </div>
                         </div>

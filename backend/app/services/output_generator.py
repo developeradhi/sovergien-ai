@@ -190,5 +190,170 @@ class OutputGenerator:
         doc.build(elements)
         return filepath
 
+    def generate_approval_note_docx(self, task: TaskResponse) -> str:
+        import docx
+        from docx.shared import Inches, Pt, RGBColor
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+        filename = f"MRPL_APPROVAL_NOTE_{task.id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.docx"
+        filepath = os.path.join(self.output_dir, filename)
+
+        doc = docx.Document()
+
+        # Title
+        p_title = doc.add_paragraph()
+        p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r_title = p_title.add_run("MANGALORE REFINERY AND PETROCHEMICALS LIMITED (MRPL)\n")
+        r_title.bold = True
+        r_title.font.size = Pt(15)
+        r_title.font.color.rgb = RGBColor(15, 23, 42)
+
+        r_sub = p_title.add_run("SOVEREIGN INDUSTRIAL ON-PREMISE AI WORKBENCH • APPROVAL NOTE\n")
+        r_sub.font.size = Pt(10)
+        r_sub.font.color.rgb = RGBColor(100, 116, 139)
+
+        r_task = p_title.add_run(f"TECHNICAL ASSESSMENT: {task.title.upper()}\n")
+        r_task.bold = True
+        r_task.font.size = Pt(12)
+        r_task.font.color.rgb = RGBColor(29, 78, 216)
+
+        # Metadata Table
+        doc.add_heading("1. Document & Task Metadata", level=2)
+        meta_table = doc.add_table(rows=4, cols=2)
+        meta_table.style = 'Table Grid'
+        meta_pairs = [
+            ("Task ID / Reference:", task.id),
+            ("Plant Unit / Coordinates:", task.unit_location),
+            ("Workflow Type & Priority:", f"{task.workflow_type.value} | {task.priority.value}"),
+            ("Status / Verification:", f"{task.status.value} (Review: {task.review_status or 'PENDING'})")
+        ]
+        for i, (k, v) in enumerate(meta_pairs):
+            meta_table.rows[i].cells[0].paragraphs[0].add_run(k).bold = True
+            meta_table.rows[i].cells[1].paragraphs[0].add_run(v)
+
+        doc.add_paragraph()
+
+        # Scope
+        doc.add_heading("2. Scope of Maintenance & Operation", level=2)
+        doc.add_paragraph(task.description)
+
+        # Knowledge Base Citations
+        doc.add_heading("3. Approved Grounded Knowledge Base (Local RAG)", level=2)
+        if task.citations:
+            cite_table = doc.add_table(rows=1, cols=4)
+            cite_table.style = 'Table Grid'
+            hdr = cite_table.rows[0].cells
+            hdr[0].paragraphs[0].add_run("Document").bold = True
+            hdr[1].paragraphs[0].add_run("Section").bold = True
+            hdr[2].paragraphs[0].add_run("Page").bold = True
+            hdr[3].paragraphs[0].add_run("Evidence Excerpt").bold = True
+
+            for c in task.citations[:3]:
+                row = cite_table.add_row().cells
+                row[0].paragraphs[0].add_run(c.source_filename)
+                row[1].paragraphs[0].add_run(c.section)
+                row[2].paragraphs[0].add_run(str(c.page_number))
+                row[3].paragraphs[0].add_run(c.evidence_text[:140] + "...")
+        else:
+            doc.add_paragraph("No local citations attached.")
+
+        doc.add_paragraph()
+
+        # Tool Findings & Hazards
+        doc.add_heading("4. Tool Findings & Hazard Analysis", level=2)
+        if task.hazards_detected:
+            for h in task.hazards_detected:
+                p = doc.add_paragraph(style='List Bullet')
+                r = p.add_run(f"[IDENTIFIED HAZARD] {h}")
+                r.bold = True
+                r.font.color.rgb = RGBColor(185, 28, 28)
+        else:
+            doc.add_paragraph("No active SIMOPS or atmospheric hazards detected.")
+
+        # Mitigations
+        doc.add_heading("5. Mandatory Safety Mitigations", level=2)
+        for m in task.safety_mitigations:
+            p = doc.add_paragraph(style='List Bullet')
+            r = p.add_run(f"[MANDATORY CONTROL] {m}")
+            r.font.color.rgb = RGBColor(4, 120, 87)
+
+        # Human Review Block
+        doc.add_heading("6. Certified Safety Officer Sign-Off (Human-in-the-Loop)", level=2)
+        review_p = doc.add_paragraph()
+        review_p.add_run(f"Safety Reviewer: ").bold = True
+        review_p.add_run(f"{task.reviewer_name or 'Awaiting Safety Review'}\n")
+        review_p.add_run(f"Decision: ").bold = True
+        review_p.add_run(f"{task.review_status or 'PENDING'}\n")
+        review_p.add_run(f"Reviewer Directives: ").bold = True
+        review_p.add_run(f"{task.reviewer_comments or 'None'}\n")
+
+        # Audit Seal
+        doc.add_paragraph()
+        raw_hash = hashlib.sha256(f"{task.id}_{task.status}_{task.reviewed_at}".encode("utf-8")).hexdigest()
+        p_seal = doc.add_paragraph()
+        p_seal.add_run(f"IMMUTABLE AUDIT HASH (SHA-256): {raw_hash}\n").bold = True
+        p_seal.add_run("Execution Environment: Sovereign On-Premise Air-Gap • Mangalore Refinery and Petrochemicals Limited").italic = True
+
+        doc.save(filepath)
+        return filepath
+
+    def generate_action_tracker_xlsx(self, task: TaskResponse) -> str:
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+        filename = f"MRPL_ACTION_TRACKER_{task.id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        filepath = os.path.join(self.output_dir, filename)
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Action Tracker"
+
+        # Headers
+        headers = [
+            "Action ID", "Task Ref", "Plant Location", "Identified Condition / Hazard",
+            "Mandatory Control Action", "Assigned Role", "Priority", "Reviewer Status", "Audit Hash"
+        ]
+        ws.append(headers)
+
+        # Header styling
+        header_fill = PatternFill(start_color="0F172A", end_color="0F172A", fill_type="solid")
+        header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        for col_num in range(1, len(headers) + 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        raw_hash = hashlib.sha256(f"{task.id}_{task.status}_{task.reviewed_at}".encode("utf-8")).hexdigest()[:16]
+
+        # Populate rows
+        row_idx = 2
+        for idx, (h, m) in enumerate(zip(task.hazards_detected or ["Standard flammable operational environment"],
+                                         task.safety_mitigations or ["Follow SOP instructions"])):
+            ws.append([
+                f"ACT-{task.id}-{idx + 1:02d}",
+                task.id,
+                task.unit_location,
+                h,
+                m,
+                "Certified Fire Watch / Operator",
+                task.priority.value,
+                task.review_status or "PENDING",
+                raw_hash
+            ])
+            row_idx += 1
+
+        # Auto-adjust column widths
+        for col in ws.columns:
+            max_len = max(len(str(cell.value or '')) for cell in col)
+            col_letter = openpyxl.utils.get_column_letter(col[0].column)
+            ws.column_dimensions[col_letter].width = max(max_len + 3, 12)
+
+        # Freeze top row
+        ws.freeze_panes = "A2"
+
+        wb.save(filepath)
+        return filepath
+
 
 output_generator = OutputGenerator()
