@@ -1,6 +1,9 @@
 import os
+import json
+import uuid
 import hashlib
 from datetime import datetime
+
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -355,5 +358,46 @@ class OutputGenerator:
         wb.save(filepath)
         return filepath
 
+    # --- Scaffold Compatibility Methods ---
+    def generate_json(self, task_id: str, payload: dict) -> str:
+        try:
+            from app.config import get_settings
+            settings = get_settings()
+            out_dir = settings.output_dir
+        except Exception:
+            out_dir = Path(self.output_dir)
+        output_path = out_dir / f"{task_id}_result.json"
+        output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        return str(output_path)
+
+    def generate_docx_placeholder(self, task_id: str, content: str) -> str:
+        return self._write_placeholder(task_id, "docx", content)
+
+    def generate_xlsx_placeholder(self, task_id: str, content: str) -> str:
+        return self._write_placeholder(task_id, "xlsx", content)
+
+    def generate_pdf_placeholder(self, task_id: str, content: str) -> str:
+        return self._write_placeholder(task_id, "pdf", content)
+
+    def _write_placeholder(self, task_id: str, output_type: str, content: str) -> str:
+        try:
+            from app.config import get_settings
+            settings = get_settings()
+            out_dir = settings.output_dir
+        except Exception:
+            out_dir = Path(self.output_dir)
+        output_path = out_dir / f"{task_id}_{output_type}.placeholder.txt"
+        output_path.write_text(
+            (
+                f"Placeholder for {output_type.upper()} output.\n"
+                "Replace this adapter with a real generator once dependencies are selected.\n\n"
+                f"Task content preview:\n{content[:1000]}\n"
+                f"Reference: {uuid.uuid4()}"
+            ),
+            encoding="utf-8",
+        )
+        return str(output_path)
+
 
 output_generator = OutputGenerator()
+

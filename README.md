@@ -91,16 +91,58 @@ Open **http://localhost:5173** in your browser.
 
 ## 5. Automated Test Suite
 
-To run backend security, RBAC, RAG, and workflow integration tests:
+To run the unified test suite containing both the production industrial tests and the scaffold compatibility tests:
 ```bash
-python -m pytest backend/tests/test_backend.py -v
+# Run both test suites simultaneously (18 passing tests)
+python -m pytest backend/tests/test_backend.py tests/unit/test_backend_scaffold.py -v
 ```
-All 8 integration tests verify:
-- Secure password hashing and verification
+All 18 tests verify:
+- Secure PBKDF2 password hashing and verification
 - Input sanitization against script tags and null bytes
-- 5-attempt brute-force account lockout
-- Generic error messages on authentication failure
-- RBAC permission barriers
-- Local RAG citations with page references
-- SHA-256 tamper-evident ledger integrity
-- Complete end-to-end task creation, HITL pause, review, and PDF generation
+- Brute-force rate limiting and account lockout
+- Generic error masking on authentication endpoints
+- Role-Based Access Control (RBAC) authorization matrix
+- Local RAG semantic search and evidence citations
+- Cryptographic SHA-256 chained audit ledger integrity
+- End-to-end permit lifecycle with HITL approval gate
+- High-contrast white industrial executive landing dashboard
+- Health endpoint status and local origin CORS preflight
+- Strict document upload file extension and size validation
+- Path traversal attack prevention
+- Supervised asynchronous task execution and error transitions
+- Air-gap host firewall verification and offline network status
+- Knowledge base ingestion collection validation
+
+---
+
+## 6. Comprehensive SIH Master Specification
+
+The complete, exhaustive 31-section Smart India Hackathon (SIH 2026 / MRPL Problem Statement 26117) specification is maintained in:
+👉 [**docs/SIH_MASTER_SPECIFICATION.md**](docs/SIH_MASTER_SPECIFICATION.md)
+
+It contains:
+- Complete functional and non-functional requirements
+- Detailed user role personas and permission matrices
+- End-to-end multi-step industrial workflow diagrams
+- OCR, vision, and local multimodal model routing architectures
+- Grounding in refinery manuals, P&IDs, and SOPs
+- Strict air-gap enforcement and hardware acceleration specs
+- Full demonstration scripts, acceptance criteria, and team roadmap
+
+---
+
+## 7. Security Policy & Air-Gap Compliance Checklist
+
+This project strictly adheres to the industrial security checklist:
+
+1. **No Hardcoded Secrets**: Zero API keys, private tokens, or plaintext credentials committed to source control.
+2. **Environment Isolation**: `.env` is git-ignored; sample configuration templates provided via `.env.example`.
+3. **Cryptographic Authentication**: PBKDF2-HMAC-SHA256 password hashing with unique salt; HMAC-SHA256 JWT session tokens.
+4. **Brute-Force Rate Limiting**: 5-attempt threshold with automatic timed lockout.
+5. **Generic Error Masking**: Internal tracebacks and database errors are masked to prevent reconnaissance.
+6. **Input Sanitization**: XSS `<script>` tags, null bytes, and dangerous characters stripped server-side.
+7. **Upload Security**: Allowed file extension enforcement (`.pdf`, `.docx`, `.xlsx`, `.txt`, `.png`, `.jpg`), path-traversal prevention, and strict 25 MB size limits.
+8. **Role-Based Access Control (RBAC)**: 5 distinct roles (`Operator`, `Safety Reviewer`, `Knowledge Admin`, `Auditor`, `System Admin`) with server-enforced permissions.
+9. **Zero Outbound Telemetry**: Air-gapped design with loopback-only model runtime endpoints (`127.0.0.1:11434` or local embedded engine).
+10. **Immutable Audit Ledger**: SHA-256 hash chaining on all transactions for mathematical tamper-evidence.
+

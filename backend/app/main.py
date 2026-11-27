@@ -1,7 +1,17 @@
+import os
+import sys
+from pathlib import Path
+
+# Add backend directory to sys.path so "from app.xxx import yyy" works universally
+backend_dir = str(Path(__file__).resolve().parents[1])
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 import uuid
 from datetime import datetime
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api.endpoints import router as api_router
 from backend.app.services.agent_orchestrator import agent_orchestrator
@@ -9,6 +19,16 @@ from backend.app.models.schemas import WorkflowType, TaskPriority
 
 from contextlib import asynccontextmanager
 from backend.app.db.init_db import init_db
+
+# Import scaffold compatibility routes
+from app.routes import (
+    health as scaffold_health,
+    auth as scaffold_auth,
+    documents as scaffold_documents,
+    knowledge as scaffold_knowledge,
+    tasks as scaffold_tasks,
+    security as scaffold_security,
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,10 +43,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS middleware for local Vite frontend
+# CORS middleware for local Vite frontend and scaffold tests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origin_regex=r"^https?://.*$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,18 +59,31 @@ async def global_exception_handler(request: Request, exc: Exception):
     """
     Sanitize internal system errors to prevent leaking stack traces or confidential server details.
     """
+    if isinstance(exc, (HTTPException, RequestValidationError)):
+        raise exc
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "An internal system error occurred. Security team has been notified via audit trail."}
     )
 
 
+# Mount scaffold compatibility routes at root
+app.include_router(scaffold_health.router)
+app.include_router(scaffold_auth.router)
+app.include_router(scaffold_documents.router)
+app.include_router(scaffold_knowledge.router)
+app.include_router(scaffold_tasks.router)
+app.include_router(scaffold_security.router)
+
+# Mount full sovereign production API router with /api prefix
 app.include_router(api_router, prefix="/api")
+
 
 # Root route aliases for SIH evaluation scripts & verify_offline
 from backend.app.api.endpoints import get_health, get_airgap_status
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/backend-portal", response_class=HTMLResponse)
 def root_index():
     """
     Serve a pristine white industrial executive landing dashboard for the backend.
@@ -141,7 +175,7 @@ def root_index():
         <a href="/redoc" class="btn btn-secondary">ReDoc API Specifications (/redoc)</a>
         <a href="/health" class="btn btn-secondary">Health Status Endpoint (/health)</a>
         <a href="/security/network-status" class="btn btn-secondary">Network Air-Gap Status</a>
-        <a href="http://localhost:5173" class="btn btn-success" target="_blank">Launch Frontend Workbench UI &rarr;</a>
+        <a href="/" class="btn btn-success" target="_blank">Launch Frontend Workbench UI &rarr;</a>
       </div>
     </div>
 

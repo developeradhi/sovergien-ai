@@ -99,3 +99,48 @@ export interface SystemHealth {
   total_tasks_processed: number;
   active_security_alerts: number;
 }
+
+// --- Scaffold / Legacy Compatibility Types ---
+export type HealthResponse = {
+  status: string;
+  service?: string;
+  version?: string;
+  airgap_enforced?: boolean;
+};
+
+export type DocumentUploadResponse = {
+  document_id: string;
+  filename: string;
+  extension: string;
+  size_bytes: number;
+  checksum_sha256: string;
+  stored_path: string;
+};
+
+export type TaskEvent = {
+  timestamp: string;
+  event: string;
+  details: Record<string, string>;
+};
+
+export type TaskResponse = {
+  task_id: string;
+  title: string;
+  prompt: string;
+  status: string;
+  document_ids: string[];
+  requires_review: boolean;
+  output_files: string[];
+  created_at: string;
+  updated_at: string;
+  events: TaskEvent[];
+};
+
+export type SecurityStatusResponse = {
+  offline_mode: boolean;
+  model_endpoint: string;
+  model_endpoint_local: boolean;
+  model_endpoint_reachable: boolean;
+  note: string;
+};
+

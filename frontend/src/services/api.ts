@@ -1,6 +1,6 @@
 import type { Task, DocumentMetadata, Citation, AuditLogEntry, SystemHealth, UserProfile, Role } from '../types';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = '/api';
 
 export const api = {
   async getMe(): Promise<UserProfile> {

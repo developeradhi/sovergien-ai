@@ -5,5 +5,6 @@ echo =====================================================================
 start "SovereignAI Backend API" cmd /k run_backend.bat
 start "SovereignAI Workbench UI" cmd /k run_frontend.bat
 echo SovereignAI Workbench launched!
-echo Backend:  http://127.0.0.1:8000/docs
-echo Frontend: http://localhost:5173
+echo Local Host:     http://localhost:5173
+echo Network (LAN):  http://10.97.187.182:5173
+echo Backend API:    http://10.97.187.182:8000/docs

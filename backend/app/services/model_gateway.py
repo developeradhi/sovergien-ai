@@ -149,3 +149,34 @@ class ModelGateway:
 
 
 model_gateway = ModelGateway()
+
+
+# --- Scaffold / Mock Compatibility Model Gateway ---
+from dataclasses import dataclass
+
+@dataclass(slots=True)
+class ModelResult:
+    provider: str
+    output_text: str
+
+
+class LocalModelGateway:
+    """
+    Scaffold compatibility gateway providing local mock task processing.
+    """
+    def __init__(self) -> None:
+        try:
+            from app.config import get_settings
+            self.settings = get_settings()
+        except Exception:
+            self.settings = None
+
+    def run_task(self, prompt: str, task_type: str) -> ModelResult:
+        return ModelResult(
+            provider="mock-local-provider",
+            output_text=(
+                f"Placeholder local-model response for task_type={task_type}. "
+                f"Prompt length={len(prompt)}. Configure a local model runtime to replace this provider."
+            ),
+        )
+
